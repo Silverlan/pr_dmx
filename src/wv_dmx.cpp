@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: (c) 2020 Silverlan <opensource@pragma-engine.com>
+// SPDX-License-Identifier: MIT
+
 #include "ldmx.hpp"
 #include <luainterface.hpp>
 #include <pragma/pragma_module.hpp>
