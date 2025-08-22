@@ -446,4 +446,3 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 	}));
 	modDMX[classDefAttribute];
 }
-#pragma optimize("", on)
