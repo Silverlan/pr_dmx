@@ -4,7 +4,6 @@
 #include "ldmx.hpp"
 #include <luainterface.hpp>
 #include <luasystem.h>
-#include <pragma/lua/libraries/lfile.h>
 #include <mathutil/color.h>
 #include <sstream>
 #include <unordered_map>
