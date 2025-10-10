@@ -207,7 +207,7 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 	Lua::RegisterLibrary(l.GetState(), "dmx",
 	  {
 	    {"load", static_cast<int32_t (*)(lua_State *)>([](lua_State *l) {
-		     auto &f = *Lua::CheckFile(l, 1);
+		     auto &f = Lua::Check<LFile>(l, 1);
 		     auto hFile = f.GetHandle();
 
 		     std::shared_ptr<source_engine::dmx::FileData> fd = nullptr;
