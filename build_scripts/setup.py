@@ -10,7 +10,7 @@ git_clone_commit(
     "util_dmx",
     external_libs_dir +"/util_dmx",
     "https://github.com/Silverlan/util_dmx.git",
-    "5102627b125b83094dbdca32a3b14a284fa9e239",
+    "53c2d3d136ed108dea8805d4e1b8a1c9fe3d1852",
     "feat/cxx_module"
 )
 
