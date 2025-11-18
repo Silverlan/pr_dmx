@@ -3,10 +3,6 @@
 
 import pragma.modules.dmx;
 
-extern "C"
-{
-	void PR_EXPORT pragma_initialize_lua(Lua::Interface &l)
-	{
-		Lua::dmx::register_lua_library(l);
-	}
+extern "C" {
+void PR_EXPORT pragma_initialize_lua(Lua::Interface &l) { Lua::dmx::register_lua_library(l); }
 };

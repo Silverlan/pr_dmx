@@ -5,10 +5,8 @@ export module pragma.modules.dmx;
 
 export import pragma.lua;
 
-export namespace Lua
-{
-	namespace dmx
-	{
+export namespace Lua {
+	namespace dmx {
 		void register_lua_library(Lua::Interface &l);
 	};
 };
