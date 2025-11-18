@@ -1,15 +1,9 @@
 // SPDX-FileCopyrightText: (c) 2020 Silverlan <opensource@pragma-engine.com>
 // SPDX-License-Identifier: MIT
 
-#include "ldmx.hpp"
-#include <luainterface.hpp>
-#include <luasystem.h>
-#include <pragma/lua/libraries/lfile.h>
-#include <mathutil/color.h>
-#include <sstream>
-#include <unordered_map>
-#include <sharedutils/util.h>
+module pragma.modules.dmx;
 
+import pragma.shared;
 import source_engine.dmx;
 
 static void print_attribute(std::stringstream &ss, source_engine::dmx::Attribute &attr, const std::string &t, std::unordered_map<source_engine::dmx::Element *, bool> &iteratedEls, std::unordered_map<source_engine::dmx::Attribute *, bool> &iteratedAttrs);
@@ -26,21 +20,6 @@ static void print_element(std::stringstream &ss, source_engine::dmx::Element &e,
 		ss << "\n\t" << t << pair.first;
 		print_attribute(ss, *pair.second, t + "\t\t", iteratedEls, iteratedAttrs);
 	}
-}
-
-static std::ostream &operator<<(std::ostream &s, const Mat4 &m)
-{
-	auto first = true;
-	for(uint8_t i = 0; i < 4; ++i) {
-		for(uint8_t j = 0; j < 4; ++j) {
-			if(first)
-				first = false;
-			else
-				s << " ";
-			s << m[i][j];
-		}
-	}
-	return s;
 }
 
 static void print_attribute(std::stringstream &ss, source_engine::dmx::Attribute &attr, const std::string &t, std::unordered_map<source_engine::dmx::Element *, bool> &iteratedEls, std::unordered_map<source_engine::dmx::Attribute *, bool> &iteratedAttrs)
@@ -124,7 +103,7 @@ static void print_attribute(std::stringstream &ss, source_engine::dmx::Attribute
 	}
 }
 
-static bool push_attribute_value(lua_State *l, source_engine::dmx::Attribute &attr)
+static bool push_attribute_value(lua::State *l, source_engine::dmx::Attribute &attr)
 {
 	if(attr.data == nullptr)
 		return false;
@@ -180,9 +159,9 @@ static bool push_attribute_value(lua_State *l, source_engine::dmx::Attribute &at
 		{
 			auto &data = *static_cast<std::vector<uint8_t> *>(attr.data.get());
 			auto len = data.size();
-			DataStream ds(len);
+			util::DataStream ds(len);
 			ds->Write(data.data(), data.size());
-			Lua::Push<DataStream>(l, ds);
+			Lua::Push<util::DataStream>(l, ds);
 			break;
 		}
 	default:
@@ -207,8 +186,8 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 {
 	Lua::RegisterLibrary(l.GetState(), "dmx",
 	  {
-	    {"load", static_cast<int32_t (*)(lua_State *)>([](lua_State *l) {
-		     auto &f = *Lua::CheckFile(l, 1);
+	    {"load", static_cast<int32_t (*)(lua::State *)>([](lua::State *l) {
+		     auto &f = Lua::Check<LFile>(l, 1);
 		     auto hFile = f.GetHandle();
 
 		     std::shared_ptr<source_engine::dmx::FileData> fd = nullptr;
@@ -232,7 +211,7 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 		     Lua::Push<decltype(fd)>(l, fd);
 		     return 1;
 	     })},
-	    {"type_to_string", static_cast<int32_t (*)(lua_State *)>([](lua_State *l) {
+	    {"type_to_string", static_cast<int32_t (*)(lua::State *)>([](lua::State *l) {
 		     auto type = Lua::CheckInt(l, 1);
 		     Lua::PushString(l, source_engine::dmx::type_to_string(static_cast<source_engine::dmx::AttrType>(type)));
 		     return 1;
@@ -241,12 +220,12 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 
 	auto &modDMX = l.RegisterLibrary("dmx");
 	auto classDefData = luabind::class_<source_engine::dmx::FileData>("Data");
-	classDefData.def("__tostring", static_cast<void (*)(lua_State *, source_engine::dmx::FileData &)>([](lua_State *l, source_engine::dmx::FileData &data) {
+	classDefData.def("__tostring", static_cast<void (*)(lua::State *, source_engine::dmx::FileData &)>([](lua::State *l, source_engine::dmx::FileData &data) {
 		std::stringstream ss;
 		data.DebugPrint(ss);
 		Lua::PushString(l, ss.str());
 	}));
-	classDefData.def("GetElements", static_cast<void (*)(lua_State *, source_engine::dmx::FileData &)>([](lua_State *l, source_engine::dmx::FileData &data) {
+	classDefData.def("GetElements", static_cast<void (*)(lua::State *, source_engine::dmx::FileData &)>([](lua::State *l, source_engine::dmx::FileData &data) {
 		auto &elements = data.GetElements();
 		auto t = Lua::CreateTable(l);
 		auto elIdx = 1u;
@@ -256,41 +235,41 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 			Lua::SetTableValue(l, t);
 		}
 	}));
-	classDefData.def("GetRootAttribute", static_cast<void (*)(lua_State *, source_engine::dmx::FileData &)>([](lua_State *l, source_engine::dmx::FileData &data) {
+	classDefData.def("GetRootAttribute", static_cast<void (*)(lua::State *, source_engine::dmx::FileData &)>([](lua::State *l, source_engine::dmx::FileData &data) {
 		auto &attr = data.GetRootAttribute();
 		Lua::Push<std::shared_ptr<source_engine::dmx::Attribute>>(l, attr);
 	}));
 	modDMX[classDefData];
 
 	auto classDefElement = luabind::class_<source_engine::dmx::Element>("Element");
-	classDefElement.def("__tostring", static_cast<void (*)(lua_State *, source_engine::dmx::Element &)>([](lua_State *l, source_engine::dmx::Element &el) {
+	classDefElement.def("__tostring", static_cast<void (*)(lua::State *, source_engine::dmx::Element &)>([](lua::State *l, source_engine::dmx::Element &el) {
 		std::stringstream ss;
 		el.DebugPrint(ss);
 		Lua::PushString(l, ss.str());
 	}));
-	classDefElement.def("__eq", static_cast<void (*)(lua_State *, source_engine::dmx::Element &, source_engine::dmx::Element &)>([](lua_State *l, source_engine::dmx::Element &el, source_engine::dmx::Element &elOther) { Lua::PushBool(l, &el == &elOther); }));
-	classDefElement.def("GetGUID", static_cast<void (*)(lua_State *, source_engine::dmx::Element &)>([](lua_State *l, source_engine::dmx::Element &el) { Lua::PushString(l, el.GetGUIDAsString()); }));
-	classDefElement.def("Get", static_cast<void (*)(lua_State *, source_engine::dmx::Element &, const std::string &)>([](lua_State *l, source_engine::dmx::Element &el, const std::string &name) {
+	classDefElement.def("__eq", static_cast<void (*)(lua::State *, source_engine::dmx::Element &, source_engine::dmx::Element &)>([](lua::State *l, source_engine::dmx::Element &el, source_engine::dmx::Element &elOther) { Lua::PushBool(l, &el == &elOther); }));
+	classDefElement.def("GetGUID", static_cast<void (*)(lua::State *, source_engine::dmx::Element &)>([](lua::State *l, source_engine::dmx::Element &el) { Lua::PushString(l, el.GetGUIDAsString()); }));
+	classDefElement.def("Get", static_cast<void (*)(lua::State *, source_engine::dmx::Element &, const std::string &)>([](lua::State *l, source_engine::dmx::Element &el, const std::string &name) {
 		auto child = el.Get(name);
 		if(child == nullptr)
 			return;
 		Lua::Push(l, child);
 	}));
-	classDefElement.def("GetAttr", static_cast<void (*)(lua_State *, source_engine::dmx::Element &, const std::string &)>([](lua_State *l, source_engine::dmx::Element &el, const std::string &name) {
+	classDefElement.def("GetAttr", static_cast<void (*)(lua::State *, source_engine::dmx::Element &, const std::string &)>([](lua::State *l, source_engine::dmx::Element &el, const std::string &name) {
 		auto attr = el.GetAttr(name);
 		if(attr == nullptr)
 			return;
 		Lua::Push(l, attr);
 	}));
-	classDefElement.def("GetAttrV", static_cast<void (*)(lua_State *, source_engine::dmx::Element &, const std::string &)>([](lua_State *l, source_engine::dmx::Element &el, const std::string &name) {
+	classDefElement.def("GetAttrV", static_cast<void (*)(lua::State *, source_engine::dmx::Element &, const std::string &)>([](lua::State *l, source_engine::dmx::Element &el, const std::string &name) {
 		auto attr = el.GetAttr(name);
 		if(attr == nullptr)
 			return;
 		push_attribute_value(l, *attr);
 	}));
-	classDefElement.def("GetName", static_cast<void (*)(lua_State *, source_engine::dmx::Element &)>([](lua_State *l, source_engine::dmx::Element &el) { Lua::PushString(l, el.name); }));
-	classDefElement.def("GetType", static_cast<void (*)(lua_State *, source_engine::dmx::Element &)>([](lua_State *l, source_engine::dmx::Element &el) { Lua::PushString(l, el.type); }));
-	classDefElement.def("GetAttributes", static_cast<void (*)(lua_State *, source_engine::dmx::Element &)>([](lua_State *l, source_engine::dmx::Element &el) {
+	classDefElement.def("GetName", static_cast<void (*)(lua::State *, source_engine::dmx::Element &)>([](lua::State *l, source_engine::dmx::Element &el) { Lua::PushString(l, el.name); }));
+	classDefElement.def("GetType", static_cast<void (*)(lua::State *, source_engine::dmx::Element &)>([](lua::State *l, source_engine::dmx::Element &el) { Lua::PushString(l, el.type); }));
+	classDefElement.def("GetAttributes", static_cast<void (*)(lua::State *, source_engine::dmx::Element &)>([](lua::State *l, source_engine::dmx::Element &el) {
 		auto t = Lua::CreateTable(l);
 		auto attrId = 1u;
 		for(auto &pair : el.attributes) {
@@ -300,13 +279,13 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 			Lua::SetTableValue(l, t);
 		}
 	}));
-	classDefElement.def("GetAttribute", static_cast<void (*)(lua_State *, source_engine::dmx::Element &, const std::string &)>([](lua_State *l, source_engine::dmx::Element &el, const std::string &id) {
+	classDefElement.def("GetAttribute", static_cast<void (*)(lua::State *, source_engine::dmx::Element &, const std::string &)>([](lua::State *l, source_engine::dmx::Element &el, const std::string &id) {
 		auto it = el.attributes.find(id);
 		if(it == el.attributes.end())
 			return;
 		Lua::Push<std::shared_ptr<source_engine::dmx::Attribute>>(l, it->second);
 	}));
-	classDefElement.def("GetAttributeValue", static_cast<void (*)(lua_State *, source_engine::dmx::Element &, const std::string &)>([](lua_State *l, source_engine::dmx::Element &el, const std::string &id) {
+	classDefElement.def("GetAttributeValue", static_cast<void (*)(lua::State *, source_engine::dmx::Element &, const std::string &)>([](lua::State *l, source_engine::dmx::Element &el, const std::string &id) {
 		auto it = el.attributes.find(id);
 		if(it == el.attributes.end() || push_attribute_value(l, *it->second) == false)
 			return;
@@ -351,24 +330,24 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 
 	classDefAttribute.add_static_constant("TYPE_INVALID", umath::to_integral(source_engine::dmx::AttrType::Invalid));
 
-	classDefAttribute.def("__tostring", static_cast<void (*)(lua_State *, source_engine::dmx::Attribute &)>([](lua_State *l, source_engine::dmx::Attribute &attr) {
+	classDefAttribute.def("__tostring", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr) {
 		std::stringstream ss;
 		attr.DebugPrint(ss);
 		Lua::PushString(l, ss.str());
 	}));
-	classDefAttribute.def("__eq", static_cast<void (*)(lua_State *, source_engine::dmx::Attribute &, source_engine::dmx::Attribute &)>([](lua_State *l, source_engine::dmx::Attribute &attr, source_engine::dmx::Attribute &attrOther) { Lua::PushBool(l, &attr == &attrOther); }));
-	classDefAttribute.def("GetType", static_cast<void (*)(lua_State *, source_engine::dmx::Attribute &)>([](lua_State *l, source_engine::dmx::Attribute &attr) { Lua::PushInt(l, umath::to_integral(attr.type)); }));
-	classDefAttribute.def("Get", static_cast<void (*)(lua_State *, source_engine::dmx::Attribute &, const std::string &)>([](lua_State *l, source_engine::dmx::Attribute &el, const std::string &name) {
+	classDefAttribute.def("__eq", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr, source_engine::dmx::Attribute &attrOther) { Lua::PushBool(l, &attr == &attrOther); }));
+	classDefAttribute.def("GetType", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr) { Lua::PushInt(l, umath::to_integral(attr.type)); }));
+	classDefAttribute.def("Get", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &, const std::string &)>([](lua::State *l, source_engine::dmx::Attribute &el, const std::string &name) {
 		auto child = el.Get(name);
 		if(child == nullptr)
 			return;
 		Lua::Push(l, child);
 	}));
-	classDefAttribute.def("IsValid", static_cast<void (*)(lua_State *, source_engine::dmx::Attribute &)>([](lua_State *l, source_engine::dmx::Attribute &attr) { Lua::PushBool(l, attr.type != source_engine::dmx::AttrType::Invalid); }));
-	classDefAttribute.def("AddArrayValue", static_cast<void (*)(lua_State *, source_engine::dmx::Attribute &, source_engine::dmx::Attribute &)>([](lua_State *l, source_engine::dmx::Attribute &attr, source_engine::dmx::Attribute &val) { attr.AddArrayValue(val); }));
-	classDefAttribute.def("RemoveArrayValue", static_cast<void (*)(lua_State *, source_engine::dmx::Attribute &, source_engine::dmx::Attribute &)>([](lua_State *l, source_engine::dmx::Attribute &attr, source_engine::dmx::Attribute &val) { attr.RemoveArrayValue(val); }));
-	classDefAttribute.def("GetValue", static_cast<void (*)(lua_State *, source_engine::dmx::Attribute &)>([](lua_State *l, source_engine::dmx::Attribute &attr) { push_attribute_value(l, attr); }));
-	classDefAttribute.def("GetValueAsString", static_cast<void (*)(lua_State *, source_engine::dmx::Attribute &)>([](lua_State *l, source_engine::dmx::Attribute &attr) {
+	classDefAttribute.def("IsValid", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr) { Lua::PushBool(l, attr.type != source_engine::dmx::AttrType::Invalid); }));
+	classDefAttribute.def("AddArrayValue", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr, source_engine::dmx::Attribute &val) { attr.AddArrayValue(val); }));
+	classDefAttribute.def("RemoveArrayValue", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr, source_engine::dmx::Attribute &val) { attr.RemoveArrayValue(val); }));
+	classDefAttribute.def("GetValue", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr) { push_attribute_value(l, attr); }));
+	classDefAttribute.def("GetValueAsString", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr) {
 		if(attr.data == nullptr) {
 			Lua::PushString(l, "");
 			return;
@@ -400,7 +379,7 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 			ss << *static_cast<bool *>(attr.data.get());
 			break;
 		case source_engine::dmx::AttrType::Vector2:
-			ss << *static_cast<Vector2 *>(attr.data.get());
+			ss << *static_cast<::Vector2 *>(attr.data.get());
 			break;
 		case source_engine::dmx::AttrType::Vector3:
 			ss << *static_cast<Vector3 *>(attr.data.get());
@@ -409,13 +388,13 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 			ss << *static_cast<EulerAngles *>(attr.data.get());
 			break;
 		case source_engine::dmx::AttrType::Vector4:
-			ss << *static_cast<Vector4 *>(attr.data.get());
+			ss << *static_cast<::Vector4 *>(attr.data.get());
 			break;
 		case source_engine::dmx::AttrType::Quaternion:
 			ss << *static_cast<Quat *>(attr.data.get());
 			break;
 		case source_engine::dmx::AttrType::Matrix:
-			ss << *static_cast<Mat4 *>(attr.data.get());
+			ss << *static_cast<::Mat4 *>(attr.data.get());
 			break;
 		case source_engine::dmx::AttrType::Color:
 			{
