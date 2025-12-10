@@ -10,7 +10,7 @@ git_clone_commit(
     "util_dmx",
     external_libs_dir +"/util_dmx",
     "https://github.com/Silverlan/util_dmx.git",
-    "dbf8d162c3afe93b1818d762988ff33b54e081a0"
+    "974bcff10fc5da742bc7a51dfe803043bdd42930"
 )
 
 cmake_args.append("-DPME_EXTERNAL_LIB_LOCATION=" +external_libs_dir)
