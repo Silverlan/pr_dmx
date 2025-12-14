@@ -159,9 +159,9 @@ static bool push_attribute_value(lua::State *l, source_engine::dmx::Attribute &a
 		{
 			auto &data = *static_cast<std::vector<uint8_t> *>(attr.data.get());
 			auto len = data.size();
-			util::DataStream ds(len);
+			pragma::util::DataStream ds(len);
 			ds->Write(data.data(), data.size());
-			Lua::Push<util::DataStream>(l, ds);
+			Lua::Push<pragma::util::DataStream>(l, ds);
 			break;
 		}
 	default:
@@ -293,42 +293,42 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 	modDMX[classDefElement];
 
 	auto classDefAttribute = luabind::class_<source_engine::dmx::Attribute>("Attribute");
-	classDefAttribute.add_static_constant("TYPE_NONE", umath::to_integral(source_engine::dmx::AttrType::None));
-	classDefAttribute.add_static_constant("TYPE_ELEMENT", umath::to_integral(source_engine::dmx::AttrType::Element));
-	classDefAttribute.add_static_constant("TYPE_INT", umath::to_integral(source_engine::dmx::AttrType::Int));
-	classDefAttribute.add_static_constant("TYPE_FLOAT", umath::to_integral(source_engine::dmx::AttrType::Float));
-	classDefAttribute.add_static_constant("TYPE_BOOL", umath::to_integral(source_engine::dmx::AttrType::Bool));
-	classDefAttribute.add_static_constant("TYPE_STRING", umath::to_integral(source_engine::dmx::AttrType::String));
-	classDefAttribute.add_static_constant("TYPE_BINARY", umath::to_integral(source_engine::dmx::AttrType::Binary));
-	classDefAttribute.add_static_constant("TYPE_TIME", umath::to_integral(source_engine::dmx::AttrType::Time));
-	classDefAttribute.add_static_constant("TYPE_OBJECTID", umath::to_integral(source_engine::dmx::AttrType::ObjectId));
-	classDefAttribute.add_static_constant("TYPE_COLOR", umath::to_integral(source_engine::dmx::AttrType::Color));
-	classDefAttribute.add_static_constant("TYPE_VECTOR2", umath::to_integral(source_engine::dmx::AttrType::Vector2));
-	classDefAttribute.add_static_constant("TYPE_VECTOR3", umath::to_integral(source_engine::dmx::AttrType::Vector3));
-	classDefAttribute.add_static_constant("TYPE_VECTOR4", umath::to_integral(source_engine::dmx::AttrType::Vector4));
-	classDefAttribute.add_static_constant("TYPE_ANGLE", umath::to_integral(source_engine::dmx::AttrType::Angle));
-	classDefAttribute.add_static_constant("TYPE_QUATERNION", umath::to_integral(source_engine::dmx::AttrType::Quaternion));
-	classDefAttribute.add_static_constant("TYPE_MATRIX", umath::to_integral(source_engine::dmx::AttrType::Matrix));
-	classDefAttribute.add_static_constant("TYPE_UINT64", umath::to_integral(source_engine::dmx::AttrType::UInt64));
-	classDefAttribute.add_static_constant("TYPE_UINT8", umath::to_integral(source_engine::dmx::AttrType::UInt8));
+	classDefAttribute.add_static_constant("TYPE_NONE", pragma::math::to_integral(source_engine::dmx::AttrType::None));
+	classDefAttribute.add_static_constant("TYPE_ELEMENT", pragma::math::to_integral(source_engine::dmx::AttrType::Element));
+	classDefAttribute.add_static_constant("TYPE_INT", pragma::math::to_integral(source_engine::dmx::AttrType::Int));
+	classDefAttribute.add_static_constant("TYPE_FLOAT", pragma::math::to_integral(source_engine::dmx::AttrType::Float));
+	classDefAttribute.add_static_constant("TYPE_BOOL", pragma::math::to_integral(source_engine::dmx::AttrType::Bool));
+	classDefAttribute.add_static_constant("TYPE_STRING", pragma::math::to_integral(source_engine::dmx::AttrType::String));
+	classDefAttribute.add_static_constant("TYPE_BINARY", pragma::math::to_integral(source_engine::dmx::AttrType::Binary));
+	classDefAttribute.add_static_constant("TYPE_TIME", pragma::math::to_integral(source_engine::dmx::AttrType::Time));
+	classDefAttribute.add_static_constant("TYPE_OBJECTID", pragma::math::to_integral(source_engine::dmx::AttrType::ObjectId));
+	classDefAttribute.add_static_constant("TYPE_COLOR", pragma::math::to_integral(source_engine::dmx::AttrType::Color));
+	classDefAttribute.add_static_constant("TYPE_VECTOR2", pragma::math::to_integral(source_engine::dmx::AttrType::Vector2));
+	classDefAttribute.add_static_constant("TYPE_VECTOR3", pragma::math::to_integral(source_engine::dmx::AttrType::Vector3));
+	classDefAttribute.add_static_constant("TYPE_VECTOR4", pragma::math::to_integral(source_engine::dmx::AttrType::Vector4));
+	classDefAttribute.add_static_constant("TYPE_ANGLE", pragma::math::to_integral(source_engine::dmx::AttrType::Angle));
+	classDefAttribute.add_static_constant("TYPE_QUATERNION", pragma::math::to_integral(source_engine::dmx::AttrType::Quaternion));
+	classDefAttribute.add_static_constant("TYPE_MATRIX", pragma::math::to_integral(source_engine::dmx::AttrType::Matrix));
+	classDefAttribute.add_static_constant("TYPE_UINT64", pragma::math::to_integral(source_engine::dmx::AttrType::UInt64));
+	classDefAttribute.add_static_constant("TYPE_UINT8", pragma::math::to_integral(source_engine::dmx::AttrType::UInt8));
 
-	classDefAttribute.add_static_constant("TYPE_ELEMENT_ARRAY", umath::to_integral(source_engine::dmx::AttrType::ElementArray));
-	classDefAttribute.add_static_constant("TYPE_INT_ARRAY", umath::to_integral(source_engine::dmx::AttrType::IntArray));
-	classDefAttribute.add_static_constant("TYPE_FLOAT_ARRAY", umath::to_integral(source_engine::dmx::AttrType::FloatArray));
-	classDefAttribute.add_static_constant("TYPE_BOOL_ARRAY", umath::to_integral(source_engine::dmx::AttrType::BoolArray));
-	classDefAttribute.add_static_constant("TYPE_STRING_ARRAY", umath::to_integral(source_engine::dmx::AttrType::StringArray));
-	classDefAttribute.add_static_constant("TYPE_BINARY_ARRAY", umath::to_integral(source_engine::dmx::AttrType::BinaryArray));
-	classDefAttribute.add_static_constant("TYPE_TIME_ARRAY", umath::to_integral(source_engine::dmx::AttrType::TimeArray));
-	classDefAttribute.add_static_constant("TYPE_OBJECTID_ARRAY", umath::to_integral(source_engine::dmx::AttrType::ObjectIdArray));
-	classDefAttribute.add_static_constant("TYPE_COLOR_ARRAY", umath::to_integral(source_engine::dmx::AttrType::ColorArray));
-	classDefAttribute.add_static_constant("TYPE_VECTOR2_ARRAY", umath::to_integral(source_engine::dmx::AttrType::Vector2Array));
-	classDefAttribute.add_static_constant("TYPE_VECTOR3_ARRAY", umath::to_integral(source_engine::dmx::AttrType::Vector3Array));
-	classDefAttribute.add_static_constant("TYPE_VECTOR4_ARRAY", umath::to_integral(source_engine::dmx::AttrType::Vector4Array));
-	classDefAttribute.add_static_constant("TYPE_ANGLE_ARRAY", umath::to_integral(source_engine::dmx::AttrType::AngleArray));
-	classDefAttribute.add_static_constant("TYPE_QUATERNION_ARRAY", umath::to_integral(source_engine::dmx::AttrType::QuaternionArray));
-	classDefAttribute.add_static_constant("TYPE_MATRIX_ARRAY", umath::to_integral(source_engine::dmx::AttrType::MatrixArray));
+	classDefAttribute.add_static_constant("TYPE_ELEMENT_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::ElementArray));
+	classDefAttribute.add_static_constant("TYPE_INT_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::IntArray));
+	classDefAttribute.add_static_constant("TYPE_FLOAT_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::FloatArray));
+	classDefAttribute.add_static_constant("TYPE_BOOL_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::BoolArray));
+	classDefAttribute.add_static_constant("TYPE_STRING_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::StringArray));
+	classDefAttribute.add_static_constant("TYPE_BINARY_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::BinaryArray));
+	classDefAttribute.add_static_constant("TYPE_TIME_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::TimeArray));
+	classDefAttribute.add_static_constant("TYPE_OBJECTID_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::ObjectIdArray));
+	classDefAttribute.add_static_constant("TYPE_COLOR_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::ColorArray));
+	classDefAttribute.add_static_constant("TYPE_VECTOR2_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::Vector2Array));
+	classDefAttribute.add_static_constant("TYPE_VECTOR3_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::Vector3Array));
+	classDefAttribute.add_static_constant("TYPE_VECTOR4_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::Vector4Array));
+	classDefAttribute.add_static_constant("TYPE_ANGLE_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::AngleArray));
+	classDefAttribute.add_static_constant("TYPE_QUATERNION_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::QuaternionArray));
+	classDefAttribute.add_static_constant("TYPE_MATRIX_ARRAY", pragma::math::to_integral(source_engine::dmx::AttrType::MatrixArray));
 
-	classDefAttribute.add_static_constant("TYPE_INVALID", umath::to_integral(source_engine::dmx::AttrType::Invalid));
+	classDefAttribute.add_static_constant("TYPE_INVALID", pragma::math::to_integral(source_engine::dmx::AttrType::Invalid));
 
 	classDefAttribute.def("__tostring", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr) {
 		std::stringstream ss;
@@ -336,7 +336,7 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 		Lua::PushString(l, ss.str());
 	}));
 	classDefAttribute.def("__eq", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr, source_engine::dmx::Attribute &attrOther) { Lua::PushBool(l, &attr == &attrOther); }));
-	classDefAttribute.def("GetType", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr) { Lua::PushInt(l, umath::to_integral(attr.type)); }));
+	classDefAttribute.def("GetType", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &)>([](lua::State *l, source_engine::dmx::Attribute &attr) { Lua::PushInt(l, pragma::math::to_integral(attr.type)); }));
 	classDefAttribute.def("Get", static_cast<void (*)(lua::State *, source_engine::dmx::Attribute &, const std::string &)>([](lua::State *l, source_engine::dmx::Attribute &el, const std::string &name) {
 		auto child = el.Get(name);
 		if(child == nullptr)
@@ -409,7 +409,7 @@ void Lua::dmx::register_lua_library(Lua::Interface &l)
 			{
 				auto &data = *static_cast<std::vector<uint8_t> *>(attr.data.get());
 				auto len = data.size();
-				ss << "Binary [" << util::get_pretty_bytes(len) << "]";
+				ss << "Binary [" << pragma::util::get_pretty_bytes(len) << "]";
 				break;
 			}
 		default:
